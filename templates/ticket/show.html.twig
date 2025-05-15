@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket{% endblock %}
+
+{% block body %}
+    <h1>Ticket</h1>
+
+<div class="d-flex gap-2 mt-3">
+  {% if workflow_can(ticket, 'start_progress') %}
+    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'start_progress'}) }}" class="btn btn-sm btn-primary">Démarrer</a>
+  {% endif %}
+  {% if workflow_can(ticket, 'resolve') %}
+    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'resolve'}) }}" class="btn btn-sm btn-success">Résoudre</a>
+  {% endif %}
+  {% if workflow_can(ticket, 'close') %}
+    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'close'}) }}" class="btn btn-sm btn-dark">Clôturer</a>
+  {% endif %}
+  {% if workflow_can(ticket, 'reopen') %}
+    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'reopen'}) }}" class="btn btn-sm btn-warning">Rouvrir</a>
+  {% endif %}
+</div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <th>Title</th>
+                <td>{{ ticket.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ ticket.description }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ ticket.status }}</td>
+            </tr>
+            <tr>
+                <th>Priority</th>
+                <td>{{ ticket.priority }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="d-flex gap-2 mt-3">
+        <a class="btn btn-info" href="{{ path('app_ticket_index') }}">Retour</a>
+        <a class="btn btn-warning" href="{{ path('app_ticket_edit', {'id': ticket.id}) }}">Editer</a>
+        {% if is_granted('DELETE', ticket) %}
+            {{ include('ticket/_delete_form.html.twig') }}    
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,26 @@
+# security.yaml
+security:
+    password_hashers:
+        App\Entity\User:
+            algorithm: auto
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+
+    firewalls:
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\LoginFormAuthenticator
+            logout:
+                path: logout
+                target: login
+
+    access_control:
+        # User identified can acess, his right is set in voter
+        - { path: ^/ticket, roles: IS_AUTHENTICATED_FULLY }
+

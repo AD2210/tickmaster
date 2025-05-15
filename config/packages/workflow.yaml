@@ -1,0 +1,28 @@
+framework:
+  workflows:
+    ticket:
+      type: 'state_machine'
+      supports:
+        - App\Entity\Ticket
+      marking_store:
+        type: method
+        property: status
+      initial_marking: ouvert
+      places:
+        - ouvert
+        - en_cours
+        - resolu
+        - ferme
+      transitions:
+        start_progress:
+          from: ouvert
+          to: en_cours
+        resolve:
+          from: en_cours
+          to: resolu
+        close:
+          from: resolu
+          to: ferme
+        reouvert:
+          from: [resolu, ferme]
+          to: en_cours

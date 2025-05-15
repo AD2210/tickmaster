@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket index{% endblock %}
+
+{% block body %}
+    <h1>Ticket index</h1>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Statut</th>
+                <th>Priorité</th>
+                <th>Créé</th>
+                <th>Modifié</th>
+                <th>Reponsable</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.title }}</td>
+                <td>{{ ticket.description }}</td>
+                <td>{{ ticket.status }}</td>
+                <td>{{ ticket.priority }}</td>
+                <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d') : '' }}</td>
+                <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d') : '' }}</td>
+                <td>{{ ticket.owner.firstname }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{{ path('app_ticket_show', {'id': ticket.id}) }}">Voir</a>
+                    {% if is_granted('EDIT', ticket) %}
+                        <a class="btn btn-warning" href="{{ path('app_ticket_edit', {'id': ticket.id}) }}">Editer</a>    
+                    {% endif %}
+                    
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun ticket</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a class="btn btn-success mb-3" href="{{ path('app_ticket_new') }}">Nouveau</a>
+{% endblock %}
