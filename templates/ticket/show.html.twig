@@ -20,7 +20,7 @@
   {% endif %}
 </div>
 
-    <table class="table">
+    <table class="table table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -44,11 +44,11 @@
             </tr>
             <tr>
                 <th>CreatedAt</th>
-                <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d') : '' }}</td>
             </tr>
             <tr>
                 <th>UpdatedAt</th>
-                <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d') : '' }}</td>
             </tr>
         </tbody>
     </table>

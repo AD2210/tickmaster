@@ -16,6 +16,16 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
+    public function countByStatus(): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('t.status AS status, COUNT(t.id) AS cnt')
+            ->groupBy('t.status');
+
+        // transforme [ ['status'=>'open','cnt'=>12], … ] en ['open'=>12, …]
+        return array_column($qb->getQuery()->getResult(), 'cnt', 'status');
+    }
+
     //    /**
     //     * @return Ticket[] Returns an array of Ticket objects
     //     */

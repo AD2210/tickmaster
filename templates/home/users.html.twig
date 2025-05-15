@@ -1,0 +1,34 @@
+{# Fonction Uniquement pour le debug #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Utilisateurs{% endblock %}
+
+{% block body %}
+    <h1>Utilisateurs</h1>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Prénom</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.firstname }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.roles |join(', ') }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun Utilisateur</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

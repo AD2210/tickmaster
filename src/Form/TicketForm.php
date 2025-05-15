@@ -2,14 +2,15 @@
 
 namespace App\Form;
 
-use App\Entity\Ticket;
 use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Ticket;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class TicketForm extends AbstractType
 {
@@ -17,7 +18,11 @@ class TicketForm extends AbstractType
     {
         $builder
             ->add('title', TextType::class)
-            ->add('description', TextType::class)
+            ->add('description', TextareaType::class,[
+                'attr' => [
+                    'rows' => 5
+                ]
+            ])
             ->add('status', ChoiceType::class, [
                 'choices' => array_combine(Ticket::STATUSES, Ticket::STATUSES),
                 'placeholder' => 'Choisir un statut'
