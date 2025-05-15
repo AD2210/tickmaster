@@ -45,6 +45,25 @@
         {% endfor %}
         </tbody>
     </table>
+    <nav>
+        <ul class="pagination">
+            {# lien page précédente #}
+            <li class="page-item {{ 1 == currentPage ? 'disabled' }}">
+            <a class="page-link" href="{{ path('app_ticket_index', {page: currentPage - 1}) }}">«</a>
+            </li>
 
+            {# pages #}
+            {% for i in 1..pagesCount %}
+            <li class="page-item {{ i == currentPage ? 'active' }}">
+                <a class="page-link" href="{{ path('app_ticket_index', {page: i}) }}">{{ i }}</a>
+            </li>
+            {% endfor %}
+
+            {# lien page suivante #}
+            <li class="page-item {{ pagesCount == currentPage ? 'disabled' }}">
+            <a class="page-link" href="{{ path('app_ticket_index', {page: currentPage + 1}) }}">»</a>
+            </li>
+        </ul>
+    </nav>
     <a class="btn btn-success mb-3" href="{{ path('app_ticket_new') }}">Nouveau</a>
 {% endblock %}

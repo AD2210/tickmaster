@@ -12,20 +12,35 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use DateTime;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 #[Route('/ticket')]
 final class TicketController extends AbstractController
 {
     #[Route(name: 'app_ticket_index', methods: ['GET'])]
-    public function index(TicketRepository $ticketRepository): Response
+    public function index(TicketRepository $ticketRepository, Request $request): Response
     {
-        // ADMIN voit tous, les autres voient seulement leurs tickets
-        $tickets = $this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_TECHNICIEN')
-            ? $ticketRepository->findAll()
-            : $ticketRepository->findBy(['owner' => $this->getUser()]);
+        // Build query selon le rôle
+        $qb = $ticketRepository->createQueryBuilder('t');
+        if (! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_TECHNICIEN')) {
+            $qb->andWhere('t.owner = :user')
+                ->setParameter('user', $this->getUser());
+        }
+
+        // Pagination Doctrine
+        $page  = max(1, $request->query->getInt('page', 1));
+        $limit = 10;
+        $qb->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        $paginator  = new Paginator($qb);
+        $totalItems = count($paginator);
+        $pagesCount = (int) ceil($totalItems / $limit);
 
         return $this->render('ticket/index.html.twig', [
-            'tickets' => $tickets,
+            'tickets'     => $paginator,
+            'currentPage' => $page,
+            'pagesCount'  => $pagesCount,
         ]);
     }
 
@@ -81,8 +96,8 @@ final class TicketController extends AbstractController
     public function delete(Request $request, Ticket $ticket, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('DELETE', $ticket);
-        
-        if ($this->isCsrfTokenValid('delete'.$ticket->getId(), $request->getPayload()->getString('_token'))) {
+
+        if ($this->isCsrfTokenValid('delete' . $ticket->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ticket);
             $entityManager->flush();
         }
@@ -91,22 +106,22 @@ final class TicketController extends AbstractController
     }
 
     #[Route('/ticket/{id}/transition/{transition}', name: 'app_ticket_transition')]
-public function transition(
-    Ticket $ticket,
-    string $transition,
-    WorkflowInterface $ticketStateMachine,
-    EntityManagerInterface $em
-): Response {
-    // Vérifie que la transition est possible
-    if (!$ticketStateMachine->can($ticket, $transition)) {
-        throw $this->createAccessDeniedException('Transition invalide.');
+    public function transition(
+        Ticket $ticket,
+        string $transition,
+        WorkflowInterface $ticketStateMachine,
+        EntityManagerInterface $em
+    ): Response {
+        // Vérifie que la transition est possible
+        if (!$ticketStateMachine->can($ticket, $transition)) {
+            throw $this->createAccessDeniedException('Transition invalide.');
+        }
+
+        // Applique la transition et met à jour la date
+        $ticketStateMachine->apply($ticket, $transition);
+        $ticket->setUpdatedAt(new DateTime('today'));
+        $em->flush();
+
+        return $this->redirectToRoute('app_ticket_show', ['id' => $ticket->getId()]);
     }
-
-    // Applique la transition et met à jour la date
-    $ticketStateMachine->apply($ticket, $transition);
-    $ticket->setUpdatedAt(new DateTime('today'));
-    $em->flush();
-
-    return $this->redirectToRoute('app_ticket_show', ['id' => $ticket->getId()]);
-}
 }
