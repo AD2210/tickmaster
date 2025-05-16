@@ -1,3 +1,6 @@
+{# Récupère les paramètres utilisateur #}
+{% set userSettings = app.user ? app.user.getSettings() : {} %}
+
 <!DOCTYPE html>
     <html>
       <head>
@@ -9,7 +12,7 @@
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
       </head>
-      <body class="bg-light">
+      <body class="bg-{{ userSettings.theme|default('light') }} text-{{ userSettings.theme == 'dark' ? 'white' : 'dark' }}">
         <header class="p-0">
           <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-0">
             <div class="container-fluid">
@@ -25,6 +28,9 @@
         <div class="d-flex">
           <nav id="sidebar" class="bg-secondary text-white vh-90 p-3">
             <ul class="nav nav-pills flex-column mt-4">
+              <li class="nav-item mb-2">
+                <a class="nav-link text-white" href="{{ path('app_user_settings') }}">Paramètres</a>
+              </li>
               <li class="nav-item mb-2">
                 <a class="nav-link text-white" href="{{ path('app_dashboard') }}">Dashboard</a>
               </li>

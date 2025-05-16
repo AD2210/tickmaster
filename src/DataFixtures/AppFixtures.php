@@ -54,6 +54,10 @@ class AppFixtures extends Fixture
                 $user->setEmail(strtolower($user->getFirstname() .'.' .$user->getName()) . '@example.com');
                 $user->setRole([$role]);
                 $user->setPassword($this->hasher->hashPassword($user, 'password123'));
+                $user->setSettings([
+                    'theme' => 'light',
+                    'showCharts' => true
+                ]);
                 $manager->persist($user);
             }
         }

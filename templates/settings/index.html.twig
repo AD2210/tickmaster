@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres utilisateur{% endblock %}
+
+{% block body %}
+  <div class="container mt-4">
+    <h1>Paramètres de l'utilisateur</h1>
+    {{ form_start(form) }}
+      <div class="mb-3">
+        {{ form_label(form.theme) }}
+        {{ form_widget(form.theme, { 'attr': { 'class': 'form-select' } }) }}
+      </div>
+      <div class="form-check mb-3">
+        {{ form_widget(form.showCharts, { 'attr': { 'class': 'form-check-input' } }) }}
+        {{ form_label(form.showCharts, null, { 'label_attr': { 'class': 'form-check-label' } }) }}
+      </div>
+      {{ form_rest(form) }}
+      <button type="submit" class="btn btn-primary">Enregistrer</button>
+    {{ form_end(form) }}
+  </div>
+{% endblock %}

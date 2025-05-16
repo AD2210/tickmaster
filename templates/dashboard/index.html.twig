@@ -18,55 +18,108 @@
         </div>
       {% endfor %}
     </div>
-
-    <div class="row g-3 mt-4">
-      <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header">Tickets par statut</div>
-          <div class="card-body p-0">
-            <div style="height:400px; position:relative;">
+    {# Affiche les graphiques uniquement si l'utilisateur le souhaite #}
+    {% if userSettings.showCharts %}
+      <div class="row g-3 mt-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm" style="height:450px;">
+            <div class="card-header">Tickets par statut</div>
+            <div class="card-body p-0 d-flex" style="position:relative; height:300px;">
               <canvas id="statusChart"></canvas>
             </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-6 h-100">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header">Tickets par priorité</div>
-          <div class="card-body p-0">
-            <div style="height:400px; position:relative;">
+        <div class="col-md-6">
+          <div class="card shadow-sm" style="height:450px;">
+            <div class="card-header">Tickets par priorité</div>
+            <div class="card-body p-0 d-flex" style="position:relative; height:300px;">
               <canvas id="priorityChart"></canvas>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    {% endif %}
   </div>
 {% endblock %}
 
 {% block javascripts %}
   {{ parent() }}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const statusData   = {{ stats|json_encode|raw }};
-    const priorityData = {{ priorities|json_encode|raw }};
+  {% if userSettings.showCharts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const statusData   = {{ stats|json_encode|raw }};
+      const priorityData = {{ priorities|json_encode|raw }};
+      const barColor     = '{{ userSettings.barColor|default('#0d6efd') }}';
+      const pieContrast  = '{{ userSettings.pieContrast|default('high') }}';
 
-    new Chart(document.getElementById('statusChart'), {
-      type: 'bar',
-      data: {
-        labels: Object.keys(statusData),
-        datasets: [{ label: 'Tickets par statut', data: Object.values(statusData) }]
-      },
-      options: { maintainAspectRatio: false }
-    });
+      new Chart(document.getElementById('statusChart'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(statusData),
+          datasets: [{
+            label: 'Tickets par statut',
+            data: Object.values(statusData),
+            backgroundColor: barColor,
+            borderColor: barColor,
+            borderWidth: 1
+          }]
+        },
+        options: { maintainAspectRatio: false }
+      });
 
-    new Chart(document.getElementById('priorityChart'), {
-      type: 'pie',
-      data: {
-        labels: Object.keys(priorityData),
-        datasets: [{ label: 'Tickets par priorité', data: Object.values(priorityData) }]
-      },
-      options: { maintainAspectRatio: false }
-    });
-  </script>
+      const pieBg = pieContrast === 'low'
+        ? Object.keys(priorityData).map(priority => {
+            switch(priority) {
+              case 'basse':    return 'rgba(40, 167, 69, 0.6)';
+              case 'normal': return 'rgba(0, 123, 255, 0.6)';
+              case 'haute':   return 'rgba(253, 126, 20, 0.6)';
+              case 'urgent': return 'rgba(220, 53, 69, 0.6)';
+              default:       return 'rgba(108, 117, 125, 0.6)';
+            }
+          })
+        : Object.keys(priorityData).map(priority => {
+            switch(priority) {
+              case 'basse':    return 'rgba(40, 167, 69, 1)';
+              case 'normal': return 'rgba(0, 123, 255, 1)';
+              case 'haute':   return 'rgba(253, 126, 20, 1)';
+              case 'urgent': return 'rgba(220, 53, 69, 1)';
+              default:       return 'rgba(108, 117, 125, 1)';
+            }
+          });
+      const pieBorder = pieContrast === 'low'
+        ? Object.keys(priorityData).map(priority => {
+            switch(priority) {
+              case 'basse':    return 'rgba(40, 167, 69, 0.5)';
+              case 'normal': return 'rgba(0, 123, 255, 0.5)';
+              case 'haute':   return 'rgba(253, 126, 20, 0.5)';
+              case 'urgent': return 'rgba(220, 53, 69, 0.5)';
+              default:       return 'rgba(108, 117, 125, 0.5)';
+            }
+          })
+        : Object.keys(priorityData).map(priority => {
+            switch(priority) {
+              case 'basse':    return 'rgba(40, 167, 69, 1)';
+              case 'normal': return 'rgba(0, 123, 255, 1)';
+              case 'haute':   return 'rgba(253, 126, 20, 1)';
+              case 'urgent': return 'rgba(220, 53, 69, 1)';
+              default:       return 'rgba(108, 117, 125, 1)';
+            }
+          });
+
+      new Chart(document.getElementById('priorityChart'), {
+        type: 'pie',
+        data: {
+          labels: Object.keys(priorityData),
+          datasets: [{
+            label: 'Tickets par priorité',
+            data: Object.values(priorityData),
+            backgroundColor: pieBg,
+            borderColor: pieBorder,
+            borderWidth: 1
+          }]
+        },
+        options: { maintainAspectRatio: false }
+      });
+    </script>
+  {% endif %}
 {% endblock %}

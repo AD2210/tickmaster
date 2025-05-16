@@ -39,6 +39,12 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'owner')]
     private Collection $tickets;
 
+    #[ORM\Column]
+    private array $settings = [
+        'theme' => 'light',
+        'showCharts' => true
+    ];
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -152,5 +158,17 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
     public function eraseCredentials() : void
     {
         // If you store any temporary, sensitive data on the user, clear it here
+    }
+
+    public function getSettings(): array
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(array $settings): static
+    {
+        $this->settings = $settings;
+
+        return $this;
     }
 }
