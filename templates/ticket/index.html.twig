@@ -3,7 +3,50 @@
 {% block title %}Ticket index{% endblock %}
 
 {% block body %}
-    <h1>Tickets</h1>
+
+    {{ form_start(filterForm, {method: 'GET', attr: {class: 'd-flex align-items-end mb-3'}}) }}
+    <h1 class="pe-5">Tickets</h1>
+    <div class="me-2">{{ form_widget(filterForm.status, {attr: {class: 'form-select'}}) }}</div>
+    <div class="me-2">{{ form_widget(filterForm.priority, {attr: {class: 'form-select'}}) }}</div>
+    <div class="me-2">{{ form_widget(filterForm.sort, {attr: {class: 'form-select'}}) }}</div>
+    <div class="me-2">{{ form_widget(filterForm.direction, {attr: {class: 'form-select'}}) }}</div>
+    <div class="me-2">
+      <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFilters" aria-controls="offcanvasFilters">
+        Filtres avancés
+      </button>
+    </div>
+    <div class="me-2">{{ form_widget(filterForm.filter, {attr: {class: 'btn btn-primary'}}) }}</div>
+
+  {# Offcanvas pour filtres par date #}
+  <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasFilters" aria-labelledby="offcanvasFiltersLabel">
+    <div class="offcanvas-header">
+      <h5 id="offcanvasFiltersLabel">Filtres par date</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      {# Champs de date sans form_start/form_end, intégrés au même formulaire #}
+      <div class="mb-3">
+        {{ form_label(filterForm.createdFrom, 'Créé à partir de') }}
+        {{ form_widget(filterForm.createdFrom, {attr: {class: 'form-control'}}) }}
+      </div>
+      <div class="mb-3">
+        {{ form_label(filterForm.createdTo, 'Créé jusqu\'à') }}
+        {{ form_widget(filterForm.createdTo, {attr: {class: 'form-control'}}) }}
+      </div>
+      <div class="mb-3">
+        {{ form_label(filterForm.updatedFrom, 'Mis à jour à partir de') }}
+        {{ form_widget(filterForm.updatedFrom, {attr: {class: 'form-control'}}) }}
+      </div>
+      <div class="mb-3">
+        {{ form_label(filterForm.updatedTo, 'Mis à jour jusqu\'à') }}
+        {{ form_widget(filterForm.updatedTo, {attr: {class: 'form-control'}}) }}
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-primary">Appliquer</button>
+      </div>
+    </div>
+  </div>
+  {{ form_end(filterForm) }}
 
     <table class="table table-hover">
         <thead class="table-dark">

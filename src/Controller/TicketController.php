@@ -2,17 +2,18 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Ticket;
 use App\Form\TicketForm;
+use App\Form\TicketFilterForm;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Workflow\WorkflowInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use DateTime;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 
 #[Route('/ticket')]
 final class TicketController extends AbstractController
@@ -20,8 +21,49 @@ final class TicketController extends AbstractController
     #[Route(name: 'app_ticket_index', methods: ['GET'])]
     public function index(TicketRepository $ticketRepository, Request $request): Response
     {
-        // Build query selon le rôle
+        // Création du formulaire de filtre
+        $form = $this->createForm(TicketFilterForm::class, null, [
+        'method' => 'GET',
+        'csrf_protection' => false,
+    ]);
+        $form->handleRequest($request);
+
+        // Requête builder
         $qb = $ticketRepository->createQueryBuilder('t');
+        // Filtrage statut et priorité
+        if ($form->get('status')->getData()) {
+            $qb->andWhere('t.status = :status')
+                ->setParameter('status', $form->get('status')->getData());
+        }
+        if ($form->get('priority')->getData()) {
+            $qb->andWhere('t.priority = :priority')
+                ->setParameter('priority', $form->get('priority')->getData());
+        }
+        //Filtrage dates création
+        if ($form->get('createdFrom')->getData()) {
+            $qb->andWhere('t.createdAt >= :from')
+                ->setParameter('from', $form->get('createdFrom')->getData());
+        }
+        if ($form->get('createdTo')->getData()) {
+            $qb->andWhere('t.createdAt <= :to')
+                ->setParameter('to', $form->get('createdTo')->getData());
+        }
+        // Dates update
+        if ($form->get('updatedFrom')->getData()) {
+            $qb->andWhere('t.updatedAt >= :uFrom')
+                ->setParameter('uFrom', $form->get('updatedFrom')->getData());
+        }
+        if ($form->get('updatedTo')->getData()) {
+            $qb->andWhere('t.updatedAt <= :uTo')
+                ->setParameter('uTo', $form->get('updatedTo')->getData());
+        }
+        // Tri
+        if ($form->get('sort')->getData()) {
+            $direction = $form->get('direction')->getData() ?: 'ASC';
+            $qb->orderBy($form->get('sort')->getData(), $direction);
+        }
+
+        // Build query selon le rôle
         if (! $this->isGranted('ROLE_ADMIN') && ! $this->isGranted('ROLE_TECHNICIEN')) {
             $qb->andWhere('t.owner = :user')
                 ->setParameter('user', $this->getUser());
@@ -41,6 +83,7 @@ final class TicketController extends AbstractController
             'tickets'     => $paginator,
             'currentPage' => $page,
             'pagesCount'  => $pagesCount,
+            'filterForm' => $form,
         ]);
     }
 
