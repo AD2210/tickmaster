@@ -13,15 +13,17 @@ final class DashboardController extends AbstractController
     #[Route('/ticket/dashboard', name: 'app_dashboard')]
     public function index(TicketRepository $ticketRepo): Response
     {
-        $stats = $ticketRepo->countByStatus();
+        // Récupère les stats dynamiques
+        $statusStats   = $ticketRepo->countByStatus();
+        $priorityStats = $ticketRepo->countByPriority();
 
-        // s’assure que tous les statuts sont présents, même à 0
-        foreach (Ticket::STATUSES as $st) {
-            $stats[$st] = $stats[$st] ?? 0;
-        }
+        // Garantie clés même à zéro
+        foreach (Ticket::STATUSES   as $st) { $statusStats[$st]   = $statusStats[$st]   ?? 0; }
+        foreach (Ticket::PRIORITIES as $pr) { $priorityStats[$pr] = $priorityStats[$pr] ?? 0; }
 
         return $this->render('dashboard/index.html.twig', [
-            'stats' => $stats,
+            'stats'      => $statusStats,
+            'priorities' => $priorityStats,
         ]);
     }
 }

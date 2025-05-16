@@ -25,6 +25,14 @@ class TicketRepository extends ServiceEntityRepository
         // transforme [ ['status'=>'open','cnt'=>12], … ] en ['open'=>12, …]
         return array_column($qb->getQuery()->getResult(), 'cnt', 'status');
     }
+    public function countByPriority(): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->select('t.priority AS priority, COUNT(t.id) AS cnt')
+            ->groupBy('t.priority');
+
+        return array_column($qb->getQuery()->getResult(), 'cnt', 'priority');
+    }
 
     //    /**
     //     * @return Ticket[] Returns an array of Ticket objects
