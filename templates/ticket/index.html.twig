@@ -24,25 +24,24 @@
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      {# Champs de date sans form_start/form_end, intégrés au même formulaire #}
-      <div class="mb-3">
-        {{ form_label(filterForm.createdFrom, 'Créé à partir de') }}
-        {{ form_widget(filterForm.createdFrom, {attr: {class: 'form-control'}}) }}
-      </div>
-      <div class="mb-3">
-        {{ form_label(filterForm.createdTo, 'Créé jusqu\'à') }}
-        {{ form_widget(filterForm.createdTo, {attr: {class: 'form-control'}}) }}
-      </div>
-      <div class="mb-3">
-        {{ form_label(filterForm.updatedFrom, 'Mis à jour à partir de') }}
-        {{ form_widget(filterForm.updatedFrom, {attr: {class: 'form-control'}}) }}
-      </div>
-      <div class="mb-3">
-        {{ form_label(filterForm.updatedTo, 'Mis à jour jusqu\'à') }}
-        {{ form_widget(filterForm.updatedTo, {attr: {class: 'form-control'}}) }}
-      </div>
-      <div class="text-end">
-        <button type="submit" class="btn btn-primary">Appliquer</button>
+      <div class="container-fluid">
+        <div class="row g-3 mb-3">
+          <div class="col-2">
+            {{ form_row(filterForm.createdFrom, {attr: {class: 'form-control'}}) }}
+          </div>
+          <div class="col-2">
+            {{ form_row(filterForm.createdTo, {attr: {class: 'form-control'}}) }}
+          </div>
+          <div class="col-2">
+            {{ form_row(filterForm.updatedFrom, {attr: {class: 'form-control'}}) }}
+          </div>
+          <div class="col-2">
+            {{ form_row(filterForm.updatedTo, {attr: {class: 'form-control'}}) }}
+          </div>
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">Appliquer</button>
+          </div>
       </div>
     </div>
   </div>

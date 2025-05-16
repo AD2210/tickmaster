@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@babel/preset-env": "^7.27.2",
     "@popperjs/core": "^2.11.8",
     "@symfony/webpack-encore": "^5.1.0",
     "bootstrap": "^5.3.6",
@@ -30,6 +31,7 @@
     "caniuse-api": "^3.0.0",
     "caniuse-lite": "^1.0.30001718",
     "chalk": "^2.4.2",
+    "chart.js": "^4.4.9",
     "chrome-trace-event": "^1.0.4",
     "ci-info": "^3.9.0",
     "clone-deep": "^4.0.1",
@@ -229,5 +231,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module"
+  "type": "commonjs"
 }
