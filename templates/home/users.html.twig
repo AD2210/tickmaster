@@ -14,7 +14,6 @@
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>settings</th>
             </tr>
         </thead>
         <tbody>
@@ -24,7 +23,6 @@
                 <td>{{ user.name }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.roles |join(', ') }}</td>
-                <td>{{ user.settings |join(', ') }}</td>
             </tr>
         {% else %}
             <tr>

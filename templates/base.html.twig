@@ -7,12 +7,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{% block title %}TickMaster{% endblock %}</title>
-        <link href="https:cdn.jsdelivr.net/npm/bootstrap@5.4.0/dist/css/bootstrap.min.css" rel="stylesheet">
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
       </head>
-      <body class="bg-{{ userSettings.theme|default('light') }} text-{{ userSettings.theme == 'dark' ? 'white' : 'dark' }}">
+      <body class="bg-{{ userSettings.theme|default('light') }} text-{{ userSettings.theme|default('light') == 'dark' ? 'white' : 'dark' }}">
         <header class="p-0">
           <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-0">
             <div class="container-fluid">
