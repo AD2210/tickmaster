@@ -60,4 +60,38 @@
             {{ include('ticket/_delete_form.html.twig') }}    
         {% endif %}
     </div>
+
+    {# Commentaires #}
+  <section class="mt-4">
+    <h3>Commentaires</h3>
+    {{ form_start(commentForm) }}
+      {{ form_widget(commentForm.content, {attr:{class:'form-control mb-2', rows:3}}) }}
+    {{ form_end(commentForm) }}
+
+    <ul class="list-group mt-3">
+      {% for c in comments %}
+        <li class="list-group-item">
+          <strong>{{ c.user.email }}</strong> <small>{{ c.createdAt|date('Y-m-d H:i') }}</small>
+          <p>{{ c.content }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {# Historique #}
+  <section class="mt-4">
+    <h3>Historique</h3>
+    <ul class="list-group">
+      {% for h in history %}
+        <li class="list-group-item small">
+          <em>{{ h.changedAt|date('Y-m-d H:i') }}</em> -
+          <strong>{{ h.user.email }}</strong> a modifié <code>{{ h.field }}</code> :
+          {% if h.oldValue is not null %}
+            <del>{{ h.oldValue }}</del> →
+          {% endif %}
+          {{ h.newValue }}
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
 {% endblock %}

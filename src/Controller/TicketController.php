@@ -4,7 +4,11 @@ namespace App\Controller;
 
 use DateTime;
 use App\Entity\Ticket;
+use DateTimeImmutable;
+use App\Entity\Comment;
 use App\Form\TicketForm;
+use App\Form\CommentForm;
+use App\Entity\TicketHistory;
 use App\Form\TicketFilterForm;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,9 +27,9 @@ final class TicketController extends AbstractController
     {
         // Création du formulaire de filtre
         $form = $this->createForm(TicketFilterForm::class, null, [
-        'method' => 'GET',
-        'csrf_protection' => false,
-    ]);
+            'method' => 'GET',
+            'csrf_protection' => false,
+        ]);
         $form->handleRequest($request);
 
         // Requête builder
@@ -107,12 +111,34 @@ final class TicketController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_ticket_show', methods: ['GET'])]
-    public function show(Ticket $ticket): Response
+    #[Route('/{id}', name: 'app_ticket_show', methods: ['GET', 'POST'])]
+    public function show(Ticket $ticket, Request $request, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('VIEW', $ticket);
+
+        // Formulaire commentaire
+        $comment = new Comment();
+        $comment->setTicket($ticket)->setUser($this->getUser());
+        $form = $this->createForm(CommentForm::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($comment);
+            $em->flush();
+
+            return $this->redirectToRoute('ticket_show', ['id' => $ticket->getId()]);
+        }
+
+        // Récupérer les commentaires
+        $comments = $ticket->getComments();
+
+        $history = $ticket->getTicketHistories();
+
         return $this->render('ticket/show.html.twig', [
-            'ticket' => $ticket,
+            'ticket'      => $ticket,
+            'comments'    => $comments,
+            'commentForm' => $form->createView(),
+            'history' => $history,
         ]);
     }
 
@@ -160,9 +186,20 @@ final class TicketController extends AbstractController
             throw $this->createAccessDeniedException('Transition invalide.');
         }
 
-        // Applique la transition et met à jour la date
+        // Applique la transition et met à jour la date, ainsi que l'historique
+        $oldStatus = $ticket->getStatus();
         $ticketStateMachine->apply($ticket, $transition);
         $ticket->setUpdatedAt(new DateTime('today'));
+
+        // Historique des changements de statut
+        $history = new TicketHistory();
+        $history->setTicket($ticket)
+            ->setUser($this->getUser())
+            ->setField('status')
+            ->setOldValue($oldStatus)
+            ->setNewValue($ticket->getStatus());
+        $em->persist($history);
+
         $em->flush();
 
         return $this->redirectToRoute('app_ticket_show', ['id' => $ticket->getId()]);

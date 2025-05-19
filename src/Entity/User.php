@@ -45,9 +45,23 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
         'showCharts' => true
     ];
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
+    private Collection $comments;
+
+    /**
+     * @var Collection<int, TicketHistory>
+     */
+    #[ORM\OneToMany(targetEntity: TicketHistory::class, mappedBy: 'user')]
+    private Collection $ticketHistories;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+        $this->ticketHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,6 +182,66 @@ class User implements UserInterface,PasswordAuthenticatedUserInterface
     public function setSettings(array $settings): static
     {
         $this->settings = $settings;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): static
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): static
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TicketHistory>
+     */
+    public function getTicketHistories(): Collection
+    {
+        return $this->ticketHistories;
+    }
+
+    public function addTicketHistory(TicketHistory $ticketHistory): static
+    {
+        if (!$this->ticketHistories->contains($ticketHistory)) {
+            $this->ticketHistories->add($ticketHistory);
+            $ticketHistory->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicketHistory(TicketHistory $ticketHistory): static
+    {
+        if ($this->ticketHistories->removeElement($ticketHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($ticketHistory->getUser() === $this) {
+                $ticketHistory->setUser(null);
+            }
+        }
 
         return $this;
     }
