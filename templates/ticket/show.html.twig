@@ -89,6 +89,31 @@
             {% endfor %}
             </ul>
         </section>
+        {# Pièces Jointes #}
+        <section class="mt-4">
+            <h3>Pièces jointes</h3>
+            <ul class="list-group">
+                {% for c in comments %}
+                    {% if c.attachments|length > 0 %}
+                        <li class="list-group-item">
+                            <em>{{ c.createdAt|date('Y-m-d H:i') }}</em> -
+                            <div class="mt-2">
+                                {% for att in c.attachments %}
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <a href="{{ asset('uploads/attachments/' ~ att.filename) }}" target="_blank">{{ att.originalName }}</a>
+                                        <form method="post" action="{{ path('attachment_delete', {'id': att.id}) }}" onsubmit="return confirm('Supprimer ce fichier ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete-attachment' ~ att.id) }}">
+                                            <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </section>
+        
     </div>
 </div>
 {% endblock %}

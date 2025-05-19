@@ -9,6 +9,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -18,6 +19,12 @@ class CommentForm extends AbstractType
     {
         $builder
             ->add('content', TextareaType::class, ['label' => 'Commentaire'])
+            ->add('attachments', FileType::class, [
+                'label' => 'Pièces jointes',
+                'multiple' => true,
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add('submit', SubmitType::class, ['label' => 'Ajouter']);
     }
 

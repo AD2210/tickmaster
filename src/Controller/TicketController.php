@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use App\Entity\Comment;
 use App\Form\TicketForm;
 use App\Form\CommentForm;
+use App\Entity\Attachment;
 use App\Entity\TicketHistory;
 use App\Form\TicketFilterForm;
 use App\Repository\TicketRepository;
@@ -123,6 +124,19 @@ final class TicketController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $files = $form->get('attachments')->getData();
+            foreach ($files as $file) {
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeName = uniqid() . '.' . $file->guessExtension();
+                $file->move($this->getParameter('attachments_directory'), $safeName);
+
+                $attachment = new Attachment();
+                $attachment->setOriginalName($originalName)
+                    ->setFilename($safeName)
+                    ->setComment($comment);
+                $em->persist($attachment);
+                $comment->addAttachment($attachment);
+            }
             // Enregistrer l'historique du commentaire
             $history = new TicketHistory();
             $history->setTicket($ticket)
