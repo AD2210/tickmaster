@@ -3,95 +3,92 @@
 {% block title %}Ticket{% endblock %}
 
 {% block body %}
-    <h1>Ticket</h1>
+<div class="row">
+    <div class="col-md-7">
+        
+        {#Affichage du bouton de changement de statut pour le workflow#}
+        <div class="d-flex justify-content-between align-items-center gap-2 mt-3 pb-3">
+            <h1>Ticket</h1>
+            {% if workflow_can(ticket, 'start_progress') %}
+                <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'start_progress'}) }}" class="btn btn-lg btn-primary">Démarrer</a>
+            {% endif %}
+            {% if workflow_can(ticket, 'resolve') %}
+                <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'resolve'}) }}" class="btn btn-lg btn-success">Résoudre</a>
+            {% endif %}
+            {% if workflow_can(ticket, 'close') %}
+                <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'close'}) }}" class="btn btn-lg btn-dark">Clôturer</a>
+            {% endif %}
+            {% if workflow_can(ticket, 'reopen') %}
+                <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'reopen'}) }}" class="btn btn-lg btn-warning">Rouvrir</a>
+            {% endif %}
+        </div>
 
-<div class="d-flex gap-2 mt-3">
-  {% if workflow_can(ticket, 'start_progress') %}
-    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'start_progress'}) }}" class="btn btn-sm btn-primary">Démarrer</a>
-  {% endif %}
-  {% if workflow_can(ticket, 'resolve') %}
-    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'resolve'}) }}" class="btn btn-sm btn-success">Résoudre</a>
-  {% endif %}
-  {% if workflow_can(ticket, 'close') %}
-    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'close'}) }}" class="btn btn-sm btn-dark">Clôturer</a>
-  {% endif %}
-  {% if workflow_can(ticket, 'reopen') %}
-    <a href="{{ path('app_ticket_transition', {id: ticket.id, transition: 'reopen'}) }}" class="btn btn-sm btn-warning">Rouvrir</a>
-  {% endif %}
-</div>
+        <table class="table table-striped">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ ticket.id }}</td>
+                </tr>
+                <tr>
+                    <th>Title</th>
+                    <td>{{ ticket.title }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ ticket.description }}</td>
+                </tr>
+                <tr>
+                    <th>Status</th>
+                    <td>{{ ticket.status }}</td>
+                </tr>
+                <tr>
+                    <th>Priority</th>
+                    <td>{{ ticket.priority }}</td>
+                </tr>
+                <tr>
+                    <th>CreatedAt</th>
+                    <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d') : '' }}</td>
+                </tr>
+                <tr>
+                    <th>UpdatedAt</th>
+                    <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d') : '' }}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <table class="table table-striped">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ ticket.id }}</td>
-            </tr>
-            <tr>
-                <th>Title</th>
-                <td>{{ ticket.title }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ ticket.description }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ ticket.status }}</td>
-            </tr>
-            <tr>
-                <th>Priority</th>
-                <td>{{ ticket.priority }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ ticket.createdAt ? ticket.createdAt|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>UpdatedAt</th>
-                <td>{{ ticket.updatedAt ? ticket.updatedAt|date('Y-m-d') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="d-flex gap-2 mt-3">
+            <a class="btn btn-info" href="{{ path('app_ticket_index') }}">Retour</a>
+            <a class="btn btn-warning" href="{{ path('app_ticket_edit', {'id': ticket.id}) }}">Editer</a>
+            {% if is_granted('DELETE', ticket) %}
+                {{ include('ticket/_delete_form.html.twig') }}    
+            {% endif %}
+        </div>
 
-    <div class="d-flex gap-2 mt-3">
-        <a class="btn btn-info" href="{{ path('app_ticket_index') }}">Retour</a>
-        <a class="btn btn-warning" href="{{ path('app_ticket_edit', {'id': ticket.id}) }}">Editer</a>
-        {% if is_granted('DELETE', ticket) %}
-            {{ include('ticket/_delete_form.html.twig') }}    
-        {% endif %}
+        {# Commentaires #}
+        <section class="mt-4">
+            <h3>Commentaires</h3>
+            {{ form_start(commentForm) }}
+            {{ form_widget(commentForm.content, {attr:{class:'form-control mb-2', rows:3}}) }}
+            {{ form_end(commentForm) }}
+        </section>
     </div>
-
-    {# Commentaires #}
-  <section class="mt-4">
-    <h3>Commentaires</h3>
-    {{ form_start(commentForm) }}
-      {{ form_widget(commentForm.content, {attr:{class:'form-control mb-2', rows:3}}) }}
-    {{ form_end(commentForm) }}
-
-    <ul class="list-group mt-3">
-      {% for c in comments %}
-        <li class="list-group-item">
-          <strong>{{ c.user.email }}</strong> <small>{{ c.createdAt|date('Y-m-d H:i') }}</small>
-          <p>{{ c.content }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
-
-  {# Historique #}
-  <section class="mt-4">
-    <h3>Historique</h3>
-    <ul class="list-group">
-      {% for h in history %}
-        <li class="list-group-item small">
-          <em>{{ h.changedAt|date('Y-m-d H:i') }}</em> -
-          <strong>{{ h.user.email }}</strong> a modifié <code>{{ h.field }}</code> :
-          {% if h.oldValue is not null %}
-            <del>{{ h.oldValue }}</del> →
-          {% endif %}
-          {{ h.newValue }}
-        </li>
-      {% endfor %}
-    </ul>
-  </section>
+    <div class="col-md-5">
+        {# Historique #}
+        <section class="mt-4">
+            <h3>Historique</h3>
+            <ul class="list-group">
+            {% for h in history %}
+                <li class="list-group-item small">
+                <em>{{ h.changedAt|date('Y-m-d H:i') }}</em> -
+                <strong>{{ h.user.email }}</strong> a modifié <code>{{ h.field }}</code> :
+                {% if h.oldValue is not null %}
+                    <del>{{ h.oldValue }}</del> →
+                {% endif %}
+                {{ h.newValue }}
+                </li>
+            {% endfor %}
+            </ul>
+        </section>
+    </div>
+</div>
 {% endblock %}

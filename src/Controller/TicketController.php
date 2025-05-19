@@ -123,10 +123,19 @@ final class TicketController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Enregistrer l'historique du commentaire
+            $history = new TicketHistory();
+            $history->setTicket($ticket)
+                ->setUser($this->getUser())
+                ->setField('comment')
+                ->setOldValue(null)
+                ->setNewValue(substr($comment->getContent(), 0, 100));
+            $em->persist($history);
+
             $em->persist($comment);
             $em->flush();
 
-            return $this->redirectToRoute('ticket_show', ['id' => $ticket->getId()]);
+            return $this->redirectToRoute('app_ticket_show', ['id' => $ticket->getId()]);
         }
 
         // Récupérer les commentaires
